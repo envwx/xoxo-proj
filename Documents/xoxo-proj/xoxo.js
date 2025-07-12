@@ -11,7 +11,12 @@ function init() {
   render();
   updateBoard();
   updateMessage();
-  attachClickHandlers();
+  // Attach click handlers directly
+  for (let i = 0; i < squareElm.length; i++) {
+    squareElm[i].addEventListener('click', function() {
+      handleClick(i);
+    });
+  }
 }
 
 function render() {
@@ -25,6 +30,7 @@ function updateBoard() {
     squareElm[i].textContent = board[i];
     squareElm[i].classList.remove('X');
     squareElm[i].classList.remove('O');
+    squareElm[i].classList.remove('winner');
     if (board[i] === 'X') {
       squareElm[i].classList.add('X');
     } else if (board[i] === 'O') {
@@ -43,39 +49,19 @@ function updateMessage() {
   }
 }
 
-function attachClickHandlers() {
-  for (let i = 0; i < squareElm.length; i++) {
-    squareElm[i].addEventListener('click', function() {
-      handleClick(i);
-    });
-  }
-}
-
 function handleClick(squareIndex) {
-    if (board[squareIndex] !== '' || winner) return;
-    board[squareIndex] = turn;
-    updateBoard();
-    checkForWinner();
-    if (!winner) {
-        checkForTie();
-    }
-    if (!winner && !tie) {
-        turn = (turn === "X") ? "O" : "X";
-    }
-    updateMessage();
+  if (board[squareIndex] !== '' || winner) return;
+  board[squareIndex] = turn;
+  updateBoard();
+  checkForWinner();
+  if (!winner) {
+    checkForTie();
+  }
+  if (!winner && !tie) {
+    turn = (turn === "X") ? "O" : "X";
+  }
+  updateMessage();
 }
-
-// Remove duplicate event listeners setup
-// for (i = 0; i < squareElm.length; i++) {
-//     squareElm[i].addEventListener('click', handleClick)
-// }
-
-
-function placePiece(index) {
-    board[index] = turn
-    console.log(board)
-}
-
 
 function checkForWinner() {
   for (let combo of winningCombos) {
@@ -88,6 +74,7 @@ function checkForWinner() {
     }
   }
 }
+
 const winningCombos = [
   [0, 1, 2],
   [3, 4, 5],
@@ -100,21 +87,17 @@ const winningCombos = [
 ];
 
 function checkForTie() {
-    if (winner) {
-        tie = false;
-        return;
-    }
-    if (board.every(cell => cell !== '')) {
-        tie = true;
-    } else {
-        tie = false;
-    }
+  if (winner) {
+    tie = false;
+    return;
+  }
+  if (board.every(cell => cell !== '')) {
+    tie = true;
+  } else {
+    tie = false;
+  }
 }
 
-
-function switchPlayerTurn (){
-  turn = (turn === "X") ? "O" : "X";
-}
 function resetGame() {
   board = ['', '', '', '', '', '', '', '', ''];
   turn = 'X';
@@ -122,6 +105,10 @@ function resetGame() {
   tie = false;
   updateBoard();
   updateMessage();
+  // Remove winner highlight
+  for (let i = 0; i < squareElm.length; i++) {
+    squareElm[i].classList.remove('winner');
+  }
 }
 
 // Attach the reset button event listener once after DOM is loaded
@@ -130,7 +117,5 @@ document.addEventListener('DOMContentLoaded', function() {
   if (resetBtn) {
     resetBtn.addEventListener('click', resetGame);
   }
+  init();
 });
-
-document.addEventListener('DOMContentLoaded', init);
-
